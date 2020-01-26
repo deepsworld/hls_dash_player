@@ -1,0 +1,134 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="./StreamViewer/bootstrap.min.css">
+        <link rel="stylesheet" href="./StreamViewer/loader.css">
+        <script src="./StreamViewer/jquery.slim.min.js.download"></script>
+        <script src="./StreamViewer/aws-sdk.min.js.download"></script>
+        <link rel="icon" type="image/png" href="./StreamViewer/favicon.ico.png">
+
+        <style>
+            #playerContainer,
+            .player {
+                width: 100%;
+                height: auto;
+                min-height: 400px;
+                background-color: black;
+                outline: none;
+            }
+            .vjs-big-play-button {
+                display: none !important;
+            }
+           
+        </style>
+
+<title>Stream Viewer</title>
+</head>
+<body>
+    <div class="container mb-3">
+        <div class="row mt-3 mb-3">
+            <div class="col-md-12">
+                <h1>Stream Viewer</h1>
+            </div>
+        </div>
+        <div class="row loader" style="display: none;"></div>
+        <div class="main" style="display: block;">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Streaming Protocol</label>
+                        <select id="protocol" class="form-control form-control-sm">
+                            <option selected="">HLS</option>
+                            <option>DASH</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stream URL</label>
+                        <input id="url" type="text" placeholder="HLS/DASH url required" class="form-control form-control-sm"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Player</label>
+                        <select id="player" class="form-control form-control-sm"><option>HLS.js</option><option>Shaka Player</option><option>VideoJS</option></select>
+                    </div>
+                    <button id="start" type="submit" class="btn btn-primary">Start Playback</button>
+                </div>
+                <div class="col-md-8">
+                    <div id="playerContainer">
+
+                        <!-- HLS.js elements -->
+                        <video id="hlsjs" class="player" controls="" autoplay="" style="display: none;"></video>
+                        <script src="./StreamViewer/hls.js@latest"></script>
+
+                        <!-- VideoJS elements -->
+                        <video id="videojs" class="player video-js vjs-default-skin" controls="" autoplay="" style="display: none;"></video>
+                        <link rel="stylesheet" href="./StreamViewer/video-js.css">
+                        <script src="./StreamViewer/video.js.download"></script>
+                        <script src="./StreamViewer/videojs-contrib-hls.js.download"></script>
+
+                        <!-- Shaka Player elements -->
+                        <video id="shaka" class="player" controls="" autoplay="" style="display: none;"></video>
+                        <script src="./StreamViewer/shaka-player.compiled.js.download">
+                        </script>
+
+                        <!-- DASH.js elements -->
+                        <video id="dashjs" class="player" controls="" autoplay="" style="display: none;"></video>
+                        <script src="./StreamViewer/dash.all.min.js.download"></script>
+                    </div>
+
+                        <h3 style="margin-top: 20px;">Logs</h3>
+                        <div class="card bg-light mb-3">
+                            <pre id="logs" class="card-body text-monospace" style="font-family: monospace; white-space: pre-wrap;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var DASH_PLAYERS = ['DASH.js'];
+            var HLS_PLAYERS = ['HLS.js'];
+
+            $('#start').click(function () {
+                var protocol = $('#protocol').val();
+                var streamName = $('#streamName').val();
+                var url = $('#url').val();
+
+                console.log("Streaming from: " + url)
+                if (protocol === 'DASH') {
+                    // Step 4: Give the URL to the video player.
+                    var playerName = $('#player').val();
+
+                    if (playerName === 'DASH.js') {
+                        var playerElement = $('#dashjs');
+                        playerElement.show();
+
+                        var player = dashjs.MediaPlayer().create();
+                        console.log('Created DASH.js Player');
+
+                        player.initialize(document.querySelector('#dashjs'), url, true);
+                        console.log('Starting playback');
+                        console.log('Set player source');
+                    };
+                }
+                else { // protocol==hls
+                    var playerName = $('#player').val();
+                    if (playerName == 'HLS.js') {
+                        var playerElement = $('#hlsjs');
+                        playerElement.show();
+                        var player = new Hls();
+                        console.log('Created HLS.js Player');
+                        player.loadSource(url);
+                        player.attachMedia(playerElement[0]);
+                        console.log('Set player source');
+                        player.on(Hls.Events.MANIFEST_PARSED, function () {
+                            video.play();
+                            console.log('Starting playback');
+                        });
+                    }
+                };
+            })
+            $('.player').hide();
+        </script>
+        <script src="ui.js"></script>
+        </body>
+        
+        </html>
