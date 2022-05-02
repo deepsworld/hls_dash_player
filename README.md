@@ -1,4 +1,4 @@
-# Simple HLS and DASH players for quick testing and debugging 
+# HLS/DASH players for quick testing and debugging 
 
 ## LINK: https://deepsworld.github.io/hls_dash_player/
 
